@@ -69,7 +69,7 @@ self.coeffs = {self.coeffs}
         return np.exp(A @ self.coeffs)
 
 
-def generate_spectra(t_A, acquisition_time=1):
+def generate_spectra(t_A, acquisition_time=1,α_1=1.2, α_2=0.8):
     r"""Generate example parameters for simulation"""
     b_raw = (
         SimpleSpectrum(coeffs=[[7.63056371], [-2.07322922], [0.11770202]])(t_A) * acquisition_time
@@ -80,9 +80,6 @@ def generate_spectra(t_A, acquisition_time=1):
     P = reconstruct.background_basis(N_b, t_A.size)
     θ = (np.log(b_raw).T @ np.linalg.pinv(P)).T
     b = (np.exp(θ.T @ P)).T
-
-    α_1 = 1.2
-    α_2 = 0.8
 
     return ϕ, b, θ, α_1, α_2
 
@@ -121,6 +118,8 @@ def generate_sample_data(
     projection_shape=(31, 31),
     kernels=None,
     acquisition_time=10,
+    α_1=1.2,
+    α_2=0.8
 ):
     r"""Generate example data."""
 
@@ -135,7 +134,7 @@ def generate_sample_data(
     R = resolution.ResolutionOperator(output_shape, t_A, kernels=kernels)
     t_F = R.t_F
 
-    ϕ, b, θ, α_1, α_2 = generate_spectra(t_A, acquisition_time=acquisition_time)
+    ϕ, b, θ, α_1, α_2 = generate_spectra(t_A, acquisition_time=acquisition_time,α_1=α_1,α_2=α_2)
     N_b = θ.size
 
     D = cross_section.XSDict(isotopes, t_F, flight_path_length)
