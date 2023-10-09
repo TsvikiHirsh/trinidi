@@ -135,7 +135,7 @@ def generate_sample_data(
     R = resolution.ResolutionOperator(output_shape, t_A, kernels=kernels)
     t_F = R.t_F
 
-    ϕ, b, θ, α_1, α_2 = generate_spectra(t_A, acquisition_time=10)
+    ϕ, b, θ, α_1, α_2 = generate_spectra(t_A, acquisition_time=acquisition_time)
     N_b = θ.size
 
     D = cross_section.XSDict(isotopes, t_F, flight_path_length)
