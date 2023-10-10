@@ -1,22 +1,23 @@
 """Some util functions."""
 
 import numpy as np
-
-MASS_OF_NEUTRON = 939.56542052 * 1e6 / (299792458) ** 2  # [eV s²/m²]
+SPEED_OF_LIGHT = 299792458 # m/s
+MASS_OF_NEUTRON = 939.56542052 * 1e6 / (SPEED_OF_LIGHT) ** 2  # [eV s²/m²]
 
 TOF_LABEL = "Time-of-flight [μs]"
 ENERGY_LABEL = "Energy [eV]"
 
 
 def time2energy(time, flight_path_length):
-    r"""Convert time-of-flight to energy of the neutron.
+    r"""Convert time-of-flight to energy of the neutron. 
 
     .. math::
-        E = \frac{1}{2} m \left( \frac{L}{t} \right) \; ,
+        E = \left( \gamma - 1 \right) m c^2 \; ,
+        \gamma = \frac{1}{\sqrt{1 - \left(\frac{L}{c \cdot t} \right)^2}} \; ,
 
-    where :math:`E` is the energy, :math:`m` is the mass, :math:`t` is
-    the time-of-flight of the neutron, and :math:`L` is the flight path
-    length.
+    where :math:`E` is the energy, :math:`m` is the mass, :math:`c` is 
+    the speed of light, :math:`t` is the time-of-flight of the neutron, 
+    and :math:`L` is the flight path length.
 
     Args:
         time: Time-of-flight in :math:`\mathrm{μs}`.
@@ -26,20 +27,23 @@ def time2energy(time, flight_path_length):
         Energy of the neutron in :math:`\mathrm{eV}`.
     """
     m = MASS_OF_NEUTRON  # [eV s²/m²]
+    c = SPEED_OF_LIGHT # m/s
     L = flight_path_length  # m
     t = time / 1e6  # s
-    return m / 2 * (L / t) ** 2  # eV
+    γ = 1 / np.sqrt (1 - (L / t) ** 2 / c ** 2 )
+    return ( γ - 1 ) * m * c ** 2  # eV
 
 
 def energy2time(energy, flight_path_length):
     r"""Convert energy to time-of-flight of the neutron.
 
     .. math::
-        t = L \sqrt{ \frac{m}{2 E} }
-
-    where :math:`E` is the energy, :math:`m` is the mass, :math:`t` is
-    the time-of-flight of the neutron, and :math:`L` is the flight path
-    lenghth.
+        t = \frac{L}{c} \sqrt{ \frac{\gamma^2}{\gamma^2 - 1 }} \; ,
+        \gamma = 1 + \frac{E}{mc^2}
+        
+    where :math:`E` is the energy, :math:`m` is the mass, :math:`c` 
+    is the speed of light, :math:`t` is the time-of-flight of the neutron, 
+    and :math:`L` is the flight path length.
 
     Args:
         energy:  Energy of the neutron in :math:`\mathrm{eV}`.
@@ -51,8 +55,10 @@ def energy2time(energy, flight_path_length):
     """
     L = flight_path_length  # m
     m = MASS_OF_NEUTRON  # eV s²/m²
+    c = SPEED_OF_LIGHT # m/s
     E = energy  # eV
-    t = L * np.sqrt(m / 2 / E)  # s
+    γ = 1 + E / m / c ** 2
+    t = L / c * np.sqrt(γ ** 2 / ( γ ** 2 - 1 ) ) # s 
     return t * 1e6  # μs
 
 
