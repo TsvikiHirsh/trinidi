@@ -3,6 +3,7 @@
 import os
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 from scipy import interpolate
 from si_prefix import si_format
@@ -123,28 +124,32 @@ class XSDict:
             isotopes, self.t_F, self.flight_path_length, self.samples_per_bin
         )
 
-    def plot(self, ax, function_of_energy=False):
+    def plot(self, ax=None, function_of_energy=False,**kwargs):
         """Plot the cross sections of a XSDict object.
 
         Args:
-            ax: Matplotlib axis used for plotting.
+            ax: Matplotlib axis used for plotting. if None, the current axis is selected.
             function_of_energy (bool, optional): `True` plots the dictionary as a function
                 of energy. Default `False` plots it as a function of time-of-flight.
+            
         """
+        if not ax:
+            ax = plt.gca()
+
         if function_of_energy:
-            xax = self.E
-            xax_label = util.ENERGY_LABEL
+            xaxis = self.E
+            xaxis_label = util.ENERGY_LABEL
         else:
-            xax = self.t_F
-            xax_label = util.TOF_LABEL
+            xaxis = self.t_F
+            xaxis_label = util.TOF_LABEL
 
         for d, isotopes in zip(self.values, self.isotopes):
-            ax.plot(xax, d, label=isotopes, alpha=0.6)
+            ax.plot(xaxis, d, label=isotopes, **kwargs)
 
         ax.set_yscale("log")
-        ax.set_title("Cross Section Dictionary [cm²/mol]")
-        ax.legend()
-        ax.set_xlabel(xax_label)
+        ax.set_ylabel("σ [cm²/mol]")
+        ax.legend(title="isotope")
+        ax.set_xlabel(xaxis_label)
 
     def merge(self, merge_isotopes, merge_weights, new_key):
         """Merge cross section entries of an XSDict.
